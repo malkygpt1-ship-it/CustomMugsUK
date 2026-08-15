@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Custom Mugs UK | Personalised Mugs Made Easy",
+  title: "Custom Mugs UK | Design Your Personalised Mug",
   description:
-    "Create an 11 oz or 15 oz personalised mug with your own words, font and colours, ready for UK delivery.",
+    "Choose a character, add your own words and preview your personalised mug live before ordering for UK delivery.",
   other: {
     "codex-preview": "development",
   },

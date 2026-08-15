@@ -217,6 +217,42 @@ function MugMark() {
   );
 }
 
+function LiveMug({
+  preview,
+  rotation = 0,
+  className = "",
+  label,
+}: {
+  preview: string;
+  rotation?: number;
+  className?: string;
+  label: string;
+}) {
+  const imageSource = preview || "/templates-base/Sunshine.png";
+  const trackPosition = -100 + rotation * 0.45;
+
+  return (
+    <div className={`live-mug ${className}`} role="img" aria-label={label}>
+      <div className="mug-handle" />
+      <div className="mug-body">
+        <div className="mug-rim" />
+        <div className="mug-artwork">
+          <div
+            className="mug-artwork-track"
+            style={{ left: `${trackPosition}%` }}
+            aria-hidden="true"
+          >
+            <img src={imageSource} alt="" />
+            <img src={imageSource} alt="" />
+            <img src={imageSource} alt="" />
+          </div>
+        </div>
+      </div>
+      <div className="mug-shadow" />
+    </div>
+  );
+}
+
 export default function MugDesigner() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [template, setTemplate] = useState<TemplateName>("Sunshine");
@@ -231,6 +267,9 @@ export default function MugDesigner() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [notice, setNotice] = useState("");
+  const [previewDataUrl, setPreviewDataUrl] = useState("");
+  const [previewMode, setPreviewMode] = useState<"mug" | "print">("mug");
+  const [mugRotation, setMugRotation] = useState(0);
 
   const drawCanvas = useCallback(async () => {
     const canvas = canvasRef.current;
@@ -273,6 +312,8 @@ export default function MugDesigner() {
       font,
       colour,
     );
+
+    setPreviewDataUrl(canvas.toDataURL("image/png"));
   }, [colour, font, name, template, title]);
 
   useEffect(() => {
@@ -407,9 +448,9 @@ export default function MugDesigner() {
   const mug = MUGS[size];
 
   return (
-    <div className="site-shell">
+    <div className="site-shell" id="top">
       <header className="topbar">
-        <a className="brand" href="#designer" aria-label="Custom Mugs UK home">
+        <a className="brand" href="#top" aria-label="Custom Mugs UK home">
           <span className="brand-mark">
             <MugMark />
           </span>
@@ -419,9 +460,13 @@ export default function MugDesigner() {
           </span>
         </a>
 
-        <div className="topbar-note">
-          <span className="status-dot" /> UK delivery · print-ready both sides
-        </div>
+        <nav className="topnav" aria-label="Main navigation">
+          <a href="#how-it-works">How it works</a>
+          <a href="#designer">Mug designer</a>
+          <span className="topbar-note">
+            <span className="status-dot" /> Made to order in the UK
+          </span>
+        </nav>
 
         <button className="cart-button" type="button" onClick={() => setCartOpen(true)}>
           <CartIcon />
@@ -430,29 +475,171 @@ export default function MugDesigner() {
         </button>
       </header>
 
-      <main className="workspace" id="designer">
+      <main>
+        <section className="hero" aria-labelledby="hero-title">
+          <div className="hero-copy">
+            <span className="hero-kicker">
+              <i aria-hidden="true" /> Personalised gifts, made properly yours
+            </span>
+            <h1 id="hero-title">
+              Make their next <em>cuppa</em> one of a kind.
+            </h1>
+            <p>
+              Pick a character, add the words only they will understand, and see
+              your finished mug come to life before you order.
+            </p>
+            <div className="hero-actions">
+              <a className="primary-link" href="#designer">
+                Design your mug <span aria-hidden="true">→</span>
+              </a>
+              <a className="secondary-link" href="#how-it-works">
+                See how it works
+              </a>
+            </div>
+            <ul className="hero-proof" aria-label="Product highlights">
+              <li><strong>42</strong><span>character designs</span></li>
+              <li><strong>2-sided</strong><span>full-colour print</span></li>
+              <li><strong>UK</strong><span>made to order</span></li>
+            </ul>
+          </div>
+
+          <div className="hero-visual" aria-label="Live personalised mug preview">
+            <div className="union-lines" aria-hidden="true" />
+            <span className="hero-roundel">Live<br />preview</span>
+            <LiveMug
+              preview={previewDataUrl}
+              className="hero-mug"
+              label={`Personalised ${template} mug for ${name || "your recipient"}`}
+            />
+            <div className="hero-card hero-card-top">
+              <span>Designed by you</span>
+              <strong>{title || "Your words"}</strong>
+            </div>
+            <div className="hero-card hero-card-bottom">
+              <span className="hero-card-tick" aria-hidden="true">✓</span>
+              <div><strong>Looks just like the real thing</strong><small>Live curved preview</small></div>
+            </div>
+          </div>
+        </section>
+
+        <section className="intro-section" id="how-it-works" aria-labelledby="intro-title">
+          <div className="intro-heading">
+            <span className="eyebrow">Your idea, on a mug</span>
+            <h2 id="intro-title">From blank to brilliant in three easy steps.</h2>
+            <p>No design skills needed. If you can type it, you can mug it.</p>
+          </div>
+          <div className="intro-grid">
+            <article>
+              <span className="step-number">01</span>
+              <div className="step-icon step-icon-pick" aria-hidden="true"><i /><i /><i /></div>
+              <h3>Pick their character</h3>
+              <p>Browse 42 playful designs and choose the one that feels most like them.</p>
+              <a href="#designer">Browse designs <span aria-hidden="true">→</span></a>
+            </article>
+            <article>
+              <span className="step-number">02</span>
+              <div className="step-icon step-icon-type" aria-hidden="true">Aa</div>
+              <h3>Make it personal</h3>
+              <p>Add a name, an in-joke or their favourite saying, then choose the perfect style.</p>
+              <a href="#designer">Add your words <span aria-hidden="true">→</span></a>
+            </article>
+            <article>
+              <span className="step-number">03</span>
+              <div className="step-icon step-icon-mug" aria-hidden="true"><MugMark /></div>
+              <h3>See it on the mug</h3>
+              <p>Turn the live mock-up, check every detail and order only when it looks spot on.</p>
+              <a href="#designer">Open the designer <span aria-hidden="true">→</span></a>
+            </article>
+          </div>
+        </section>
+
+        <section className="designer-section" id="designer" aria-labelledby="designer-title">
+          <div className="designer-intro">
+            <div>
+              <span className="eyebrow">The mug designer</span>
+              <h2 id="designer-title">Right then, let&apos;s make something brilliant.</h2>
+            </div>
+            <p>Every change appears on the mug instantly. Turn it to check the wrap, or switch to the exact print layout.</p>
+          </div>
+
+          <div className="workspace">
         <section className="canvas-panel" aria-label="Mug design canvas">
           <div className="canvas-heading">
             <div>
-              <span className="eyebrow">Design desk</span>
+              <span className="eyebrow">Live preview</span>
               <strong>{template}</strong>
             </div>
-            <span className="dimension-pill">
-              {mug.exportWidth} × {mug.exportHeight}px
-            </span>
+            <div className="preview-actions">
+              <div className="preview-tabs" role="group" aria-label="Choose preview type">
+                <button
+                  className={previewMode === "mug" ? "is-active" : ""}
+                  type="button"
+                  onClick={() => setPreviewMode("mug")}
+                  aria-pressed={previewMode === "mug"}
+                >
+                  On mug
+                </button>
+                <button
+                  className={previewMode === "print" ? "is-active" : ""}
+                  type="button"
+                  onClick={() => setPreviewMode("print")}
+                  aria-pressed={previewMode === "print"}
+                >
+                  Print layout
+                </button>
+              </div>
+              <span className="dimension-pill">
+                {mug.exportWidth} × {mug.exportHeight}px
+              </span>
+            </div>
           </div>
 
           <div className="canvas-wrap">
-            <div className="canvas-mat">
-              <canvas
-                ref={canvasRef}
-                width={DESIGN_SIZE}
-                height={DESIGN_SIZE}
-                aria-label={`Preview of the ${template} personalised mug design`}
-              />
-            </div>
-            <span className="side-note side-note-left">Front</span>
-            <span className="side-note side-note-right">Back</span>
+            <canvas
+              ref={canvasRef}
+              className="design-source-canvas"
+              width={DESIGN_SIZE}
+              height={DESIGN_SIZE}
+              aria-hidden="true"
+            />
+
+            {previewMode === "mug" ? (
+              <div className="mug-preview-stage">
+                <span className="live-preview-label"><i /> Updating live</span>
+                <LiveMug
+                  preview={previewDataUrl}
+                  rotation={mugRotation}
+                  className="designer-mug"
+                  label={`Curved preview of the ${template} personalised mug for ${name || "your recipient"}`}
+                />
+                <label className="rotation-control" htmlFor="mug-rotation">
+                  <span>Turn the mug</span>
+                  <input
+                    id="mug-rotation"
+                    type="range"
+                    min="-50"
+                    max="50"
+                    value={mugRotation}
+                    onChange={(event) => setMugRotation(Number(event.target.value))}
+                    aria-valuetext={`${mugRotation < 0 ? "Left" : mugRotation > 0 ? "Right" : "Centre"} view`}
+                  />
+                  <output>{mugRotation === 0 ? "Centre" : mugRotation < 0 ? "Left" : "Right"}</output>
+                </label>
+                <p className="preview-note">Curved for a realistic look. Your final design prints in full colour on both sides.</p>
+              </div>
+            ) : (
+              <div className="print-preview">
+                <div className="canvas-mat">
+                  <img
+                    src={previewDataUrl || `/templates-base/${template}.png`}
+                    alt={`Flat print preview of the ${template} personalised mug design`}
+                  />
+                </div>
+                <span className="side-note side-note-left">Front</span>
+                <span className="side-note side-note-right">Back</span>
+                <p className="preview-note">This artwork is repeated across the exact Printful wrap file at checkout.</p>
+              </div>
+            )}
           </div>
 
           <div className="template-section">
@@ -484,7 +671,7 @@ export default function MugDesigner() {
         <aside className="controls-panel" aria-label="Personalisation controls">
           <div className="control-heading">
             <span className="eyebrow">Custom Mugs UK</span>
-            <h1>Make their cuppa personal</h1>
+            <h3>Make their cuppa personal</h3>
             <p>Choose a design, add your words, and create a proper one-off.</p>
           </div>
 
@@ -589,6 +776,8 @@ export default function MugDesigner() {
             <small>Dishwasher safe · made to order · UK delivery</small>
           </div>
         </aside>
+          </div>
+        </section>
       </main>
 
       {notice ? (
